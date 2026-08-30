@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api
+  namespace: default
+spec:
+  template:
+    spec:
+      containers:
+        - name: api
+          image: ghcr.io/acme/api:latest
+        - name: sidecar
+          image: busybox
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: report
+spec:
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: report
+              image: acme/report

@@ -1,0 +1,16 @@
+# Built binary (anchored to repo root so it never matches a source dir)
+/k8s-image-tag-lint
+/dist/
+
+# Go
+*.exe
+*.test
+*.out
+
+# Editor / OS
+.DS_Store
+.idea/
+.vscode/
+
+# Always keep fixtures
+!testdata/**
