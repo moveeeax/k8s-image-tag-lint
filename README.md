@@ -1,7 +1,7 @@
 # k8s-image-tag-lint
 
 [![ci](https://github.com/moveeeax/k8s-image-tag-lint/actions/workflows/ci.yml/badge.svg)](https://github.com/moveeeax/k8s-image-tag-lint/actions/workflows/ci.yml)
-[![Go](https://img.shields.io/badge/Go-1.22%2B-00ADD8?logo=go&logoColor=white)](go.mod)
+[![Go](https://img.shields.io/badge/Go-1.26%2B-00ADD8?logo=go&logoColor=white)](go.mod)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 Flag Kubernetes workloads that use a **mutable image tag** — `:latest`, no tag at
