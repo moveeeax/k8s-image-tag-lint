@@ -14,7 +14,7 @@ import (
 	"strings"
 
 	"github.com/moveeeax/k8s-image-tag-lint/internal/imageref"
-	yaml "gopkg.in/yaml.v3"
+	yaml "go.yaml.in/yaml/v3"
 )
 
 // workloadKinds are the manifest kinds that own a pod template. Anything else
