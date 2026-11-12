@@ -1,0 +1,40 @@
+{
+  "apiVersion": "v1",
+  "kind": "List",
+  "items": [
+    {
+      "apiVersion": "v1",
+      "kind": "Pod",
+      "metadata": {"name": "checkout-7d9f", "namespace": "shop"},
+      "spec": {
+        "nodeName": "node-a",
+        "initContainers": [{"name": "migrate", "image": "busybox:1.36"}],
+        "containers": [
+          {"name": "checkout", "image": "ghcr.io/acme/checkout:latest"},
+          {"name": "envoy", "image": "envoyproxy/envoy"},
+          {"name": "report", "image": "ghcr.io/acme/report@sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"}
+        ],
+        "ephemeralContainers": [{"name": "debugger", "image": "nicolaka/netshoot:v0.13"}]
+      },
+      "status": {
+        "initContainerStatuses": [{"name": "migrate", "imageID": "docker.io/library/busybox@sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}],
+        "containerStatuses": [
+          {"name": "checkout", "imageID": "ghcr.io/acme/checkout@sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"},
+          {"name": "envoy", "imageID": "docker-pullable://envoyproxy/envoy@sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"},
+          {"name": "report", "imageID": "ghcr.io/acme/report@sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"}
+        ],
+        "ephemeralContainerStatuses": [{"name": "debugger", "imageID": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}]
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Pod",
+      "metadata": {"name": "web-0", "namespace": "default"},
+      "spec": {
+        "nodeName": "node-b",
+        "containers": [{"name": "nginx", "image": "localhost:5000/web:1.2"}]
+      },
+      "status": {"phase": "Pending"}
+    }
+  ]
+}

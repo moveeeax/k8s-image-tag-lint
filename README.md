@@ -23,6 +23,9 @@ at pull-request time.
   `--require digest` — when it lacks a `@sha256` digest.
 - Prints an aligned table or, with `--json`, a machine-readable findings array.
 - Exits non-zero when anything is flagged, so it gates CI.
+- With `inventory`, lists every image running in a cluster from
+  `kubectl get pods -o json` and, with `--check-digests`, reports tags that
+  moved away from the digest the kubelet pulled.
 
 ## How it works
 
@@ -69,6 +72,48 @@ examples/manifests/deployment.yaml    Deployment  shop/checkout   envoy      env
 
 The digest-pinned `report` container and the tagged `busybox:1.36` initContainer
 are correctly left alone.
+
+## Cluster inventory
+
+`inventory` reads pod JSON from `kubectl` (a `List` or a single `Pod`) on stdin
+or from a file and prints one row per container, init container and ephemeral
+debug container. The tool never talks to the Kubernetes API itself; `kubectl`
+does, with your kubeconfig.
+
+```shell
+kubectl get pods --all-namespaces -o json | k8s-image-tag-lint inventory
+kubectl get pods -A -o json > pods.json
+k8s-image-tag-lint inventory --check-digests --output csv pods.json > cluster-images.csv
+```
+
+Each row has the reference split into registry, repository, tag and digest
+(`nginx` becomes `docker.io` / `library/nginx`), the mutability of the spec
+reference (`pinned`, `latest`, `untagged` or `tag`), and the running digest
+taken from the container status `imageID`. Rows are sorted by registry and the
+table ends with a container count per registry, so an unexpected public pull or
+a bypassed mirror shows up as its own group. When a runtime reports only a local
+image ID (`sha256:…` with no repository) the running digest stays empty.
+
+With `--check-digests` each tag (an untagged image counts as `:latest`) is
+resolved in its registry, and a row is marked moved when that digest differs
+from the running one. Images pinned by digest in the spec are not resolved,
+because their tag cannot move under them. The build time is read from the image
+config of the running digest; for a multi-platform image the `--platform` image
+is used (default `linux/amd64`). Registry credentials come from the Docker config
+(`~/.docker/config.json` and its credential helpers), anonymous otherwise. A
+failed lookup is reported on stderr and in the `check_error` column and does not
+stop the run. Each distinct reference is looked up once; `--timeout` (default
+`2m`) bounds the whole check.
+
+| Flag | Default | Meaning |
+|---|---|---|
+| `--output` | `table` | `table`, `json` or `csv`; JSON and CSV carry full digests and the node name |
+| `--check-digests` | off | resolve tags and read build age from the registry |
+| `--platform` | `linux/amd64` | image picked from a multi-platform index for build age |
+| `--timeout` | `2m` | limit for all registry lookups |
+
+`inventory` exits 1 when `--check-digests` finds a moved tag, 2 on bad input or
+flags, and 0 otherwise, so it can also run as a scheduled drift check.
 
 ## In CI
 
